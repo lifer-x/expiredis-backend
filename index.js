@@ -72,18 +72,6 @@ passport.use(new passportJwt.Strategy(jwtOptions, async(jwtPayload, done) => {
     }
 }));
 
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // 5 attempts per window
-    message: 'Too many login attempts, please try again later'
-});
-
-const registerLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // 1 hour
-    max: 3, // 3 registrations per hour per IP
-});
-
-
 
 app.use(cors({
     origin: process.env.ALLOWED_ORIGINS?.split(',') || [`http://localhost:5173`,'https://expiredis.qzz.io'],
@@ -123,7 +111,6 @@ db.serialize(() => {
 
 
 app.post('/register',
-    registerLimiter,
     body('email').isEmail().normalizeEmail().toLowerCase().withMessage('Invalid email'),
     body('password').isLength({ min: 8 }).withMessage('Password too short'),
     handleValidation,
@@ -144,7 +131,6 @@ app.post('/register',
 );
 
 app.post('/login',
-    loginLimiter,
     body('email').isEmail().normalizeEmail().toLowerCase().withMessage('Invalid email'),
     body('password').exists(),
     handleValidation,
