@@ -3,12 +3,11 @@ import express from 'express';
 import sqlite3 from 'sqlite3';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { body, query, param, validationResult } from 'express-validator';
+import { body,  param, validationResult } from 'express-validator';
 import passport from 'passport';
 import passportJwt from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import rateLimit from 'express-rate-limit';
 import {Resend} from 'resend';
 import cron from 'node-cron';
 
@@ -22,7 +21,7 @@ const dbPath = path.resolve(__dirname, 'db.db');
 const db = new sqlite3.Database(dbPath);
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const from = process.env.EMAIL_FROM || "ExpiredIs <notifications@expiredis.qzz.io>";
+const from = process.env.EMAIL_FROM;
 
 const dbRun = (sql, params = []) => new Promise((resolve, reject) => {
     db.run(sql, params, function(err) {
@@ -74,7 +73,7 @@ passport.use(new passportJwt.Strategy(jwtOptions, async(jwtPayload, done) => {
 
 
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(',') || [`http://localhost:5173`,'https://expiredis.qzz.io'],
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
     credentials: true,
     methods: ['GET', 'POST', 'DELETE', 'PUT']
 }));
